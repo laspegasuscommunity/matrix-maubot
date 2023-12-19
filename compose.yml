@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  maubot:
+    container_name: maubot
+    deploy:
+      restart_policy:
+        condition: always
+        delay: 5s
+    image: dock.mau.dev/maubot/maubot:latest
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      traefik.enable: "true"
+      traefik.http.routers.maubot.entrypoints: "websecure"
+      traefik.http.routers.maubot.rule: "Host(`chat.${DOMAIN}`) && PathPrefix(`/_matrix/maubot/`)"
+      traefik.http.routers.maubot.service: "maubot"
+      traefik.http.routers.maubot.tls.certresolver: "letsencrypt"
+      traefik.http.services.maubot.loadbalancer.server.port: "29316"
+    volumes:
+      - "./src/data:/data:z"
+
+networks:
+  default:
+    external: true
+    name: $NETWORK
